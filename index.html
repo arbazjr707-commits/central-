@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Smart Lab - District Hospital</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Futuristic Silver & Gold Gloss Theme */
+            --primary: #0072ff;
+            --accent: #00b894;
+            --gold: #d4af37;
+            --gold-light: #ffd700;
+            --bg-metal: linear-gradient(135deg, #e0e5ec 0%, #f4f7f9 50%, #d4dbdf 100%);
+            --text-main: #2c3e50;
+            --text-muted: #6c7a89;
+            
+            /* Glass & Gloss Variables */
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --card-border: rgba(255, 255, 255, 0.9);
+            --card-shadow: 10px 10px 30px rgba(0, 0, 0, 0.08), -10px -10px 30px rgba(255, 255, 255, 0.8);
+            --input-bg: #e8eef2;
+            --input-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.05), inset -4px -4px 8px rgba(255, 255, 255, 0.9);
+            
+            /* PRINT THEME COLORS */
+            --bg-purple: #f3e5f5; --text-purple: #4a148c;
+            --bg-yellow: #fffde7; --text-yellow: #f57f17;
+            --bg-grey:   #f5f5f5; --text-grey: #424242;
+            --bg-green:  #e0f2f1; --text-green: #004d40;
+            --bg-red:    #ffebee; --text-red: #b71c1c;
+            --bg-blue:   #e3f2fd; --text-blue: #0d47a1;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-metal);
+            color: var(--text-main);
+            margin: 0; padding: 20px;
+            display: flex; justify-content: center;
+            min-height: 100vh; overflow-x: hidden;
+        }
+
+        /* --- LAYOUT & UTILS --- */
+        .app-container { width: 100%; max-width: 900px; position: relative; }
+        .hidden { display: none !important; }
+        .fade-in { animation: fade 0.4s ease forwards; }
+        .fade-out { animation: fadeOut 0.5s ease forwards; }
+        .text-center { text-align: center; }
+        .mt-10 { margin-top: 10px; }
+        .mt-20 { margin-top: 20px; }
+        .mb-20 { margin-bottom: 20px; }
+        
+        @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOut { to { opacity: 0; } }
+
+        /* --- CARDS (Silver Gloss Effect) --- */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--card-border);
+            border-top: 2px solid white;
+            border-left: 2px solid white;
+            border-radius: 24px;
+            padding: 30px; margin-bottom: 20px;
+            box-shadow: var(--card-shadow);
+        }
+
+        h2 { color: var(--primary); margin: 0 0 20px 0; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* --- INPUTS & BUTTONS --- */
+        .sleek-input {
+            width: 100%; padding: 14px;
+            background: var(--input-bg);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 12px; color: var(--text-main);
+            font-size: 14px; font-weight: 600;
+            box-sizing: border-box; outline: none; margin-bottom: 12px;
+            box-shadow: var(--input-shadow);
+            transition: all 0.3s ease;
+        }
+        .sleek-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15); }
+
+        select.sleek-input option { background: #fff; color: #333; }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; }
+
+        .btn {
+            width: 100%; padding: 16px; border-radius: 14px; border: none;
+            font-size: 14px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+            transition: 0.3s; margin-top: 10px;
+            box-shadow: 4px 4px 10px rgba(0,0,0,0.1), -4px -4px 10px rgba(255,255,255,1);
+        }
+        .btn:active { box-shadow: inset 4px 4px 10px rgba(0,0,0,0.1), inset -4px -4px 10px rgba(255,255,255,0.5); transform: translateY(2px); }
+        .btn-primary { background: linear-gradient(135deg, #0072ff, #00c6ff); color: white; border: 1px solid rgba(255,255,255,0.3); }
+        .btn-success { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: #333; border: 1px solid rgba(255,255,255,0.6); }
+        .btn-dark { background: #e0e5ec; color: var(--text-main); border: 1px solid white; }
+
+        /* --- GOLD & SILVER MENU SYSTEM --- */
+        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .menu-item {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(220,225,230,0.5) 100%);
+            padding: 35px 15px; border-radius: 20px; text-align: center;
+            border: 1px solid var(--card-border); 
+            border-bottom: 4px solid #bbb; /* Silver base edge */
+            cursor: pointer;
+            box-shadow: var(--card-shadow); transition: all 0.3s ease;
+            position: relative; overflow: hidden;
+        }
+        /* Gold Glow Hover Effect */
+        .menu-item:hover { 
+            transform: translateY(-5px); 
+            border-bottom: 4px solid var(--gold-light);
+            border-color: var(--gold);
+            box-shadow: 0 15px 35px rgba(212, 175, 55, 0.25), -15px -15px 40px rgba(255,255,255,0.9); 
+        }
+        
+        /* BIG AND GLOWING ICONS */
+        .menu-icon { 
+            font-size: 70px; /* BIGGER ICON */
+            margin-bottom: 15px; display: block; 
+            filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.7)); /* DEFAULT GOLD GLOW */
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .menu-item:hover .menu-icon { 
+            filter: drop-shadow(0 0 25px var(--gold-light)); /* INTENSE GLOW ON HOVER */
+            transform: scale(1.15); /* POP OUT EFFECT */
+        }
+        
+        .menu-item b { color: var(--text-main); font-size: 18px; transition: color 0.3s; font-weight: 800; }
+        .menu-item:hover b { color: var(--gold); }
+
+        .search-item { padding: 15px; border-bottom: 1px solid #ddd; cursor: pointer; display: flex; justify-content: space-between; transition: 0.2s; }
+        .search-item:hover { background: rgba(212, 175, 55, 0.05); }
+
+        /* --- DASHBOARD & TEST GRID --- */
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .stat-box { background: var(--input-bg); padding: 25px; border-radius: 16px; text-align: center; box-shadow: var(--input-shadow); }
+        .stat-num { font-size: 38px; font-weight: 900; color: var(--gold); display: block; margin-bottom: 5px; text-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .stat-label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+
+        .test-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
+        .test-card-select {
+            background: var(--input-bg); border: 1px solid transparent; border-radius: 14px;
+            padding: 15px; cursor: pointer; transition: 0.3s;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+            box-shadow: var(--input-shadow); filter: grayscale(1); opacity: 0.6;
+        }
+        .test-card-select.selected {
+            background: white; border: 2px solid var(--primary);
+            box-shadow: 0 10px 20px rgba(0, 114, 255, 0.15);
+            filter: grayscale(0); opacity: 1; transform: translateY(-3px);
+        }
+        .test-card-select input { display: none; }
+        .status-badge { font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; background: #ddd; color: #888; margin-top: 8px; }
+        .test-card-select.selected .status-badge { background: #e3f2fd; color: var(--primary); }
+
+        /* --- COSMIC CINEMATIC ANIMATION --- */
+        #view-intro-anim {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            background: radial-gradient(circle at center, #1b2735 0%, #050608 100%);
+            z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        .cosmic-stars {
+            position: absolute; width: 100%; height: 100%;
+            background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><circle cx="20" cy="20" r="1.5" fill="%23ffffff"/><circle cx="150" cy="60" r="1" fill="%23ffffff"/><circle cx="80" cy="140" r="2" fill="%23ffd700"/><circle cx="180" cy="180" r="1" fill="%23ffffff"/></svg>') repeat;
+            animation: spaceDrive 25s linear infinite;
+        }
+        .cosmic-nebula {
+            position: absolute; width: 150%; height: 150%;
+            background: radial-gradient(circle at 50% 50%, rgba(100, 50, 200, 0.15), transparent 60%), 
+                        radial-gradient(circle at 80% 20%, rgba(212, 175, 55, 0.1), transparent 50%);
+            animation: pulseNebula 8s ease-in-out infinite alternate;
+        }
+        .cinematic-welcome { position: relative; z-index: 10; text-align: center; display: flex; flex-direction: column; gap: 10px; padding: 20px; }
+        .sub-welcome { 
+            font-size: 18px; color: #a5b4fc; font-weight: 600; letter-spacing: 8px; 
+            opacity: 0; animation: fadeTextIn 1.5s ease forwards 0.5s; text-shadow: 0 0 10px rgba(165, 180, 252, 0.5);
+        }
+        .main-welcome {
+            font-size: clamp(28px, 6vw, 48px); font-weight: 900; text-transform: uppercase;
+            /* Shimmering Gold Text */
+            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            opacity: 0; filter: drop-shadow(0 10px 20px rgba(212, 175, 55, 0.3));
+            animation: cinematicReveal 3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 1.2s;
+        }
+
+        @keyframes spaceDrive { from { transform: scale(1) translateY(0); } to { transform: scale(1.2) translateY(-5%); } }
+        @keyframes pulseNebula { from { opacity: 0.5; transform: scale(1); } to { opacity: 1; transform: scale(1.05); } }
+        @keyframes fadeTextIn { to { opacity: 1; transform: translateY(0); } }
+        @keyframes cinematicReveal { 
+            0% { opacity: 0; letter-spacing: -5px; transform: scale(0.9); filter: blur(10px); } 
+            100% { opacity: 1; letter-spacing: 4px; transform: scale(1); filter: blur(0px); } 
+        }
+
+        /* --- LOADER --- */
+        #view-loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            background: var(--bg-metal); z-index: 9998;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .loader-spinner {
+            width: 60px; height: 60px; border: 4px solid #e0e5ec;
+            border-top: 4px solid var(--gold); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 25px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .sys-text { font-family: monospace; color: var(--text-main); font-size: 16px; letter-spacing: 3px; font-weight: bold; }
+        .progress-bar { width: 300px; height: 6px; background: #e0e5ec; border-radius: 10px; margin-top: 20px; overflow: hidden; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1); }
+        .progress-fill { height: 100%; width: 0%; background: var(--gold); transition: width 0.2s ease; box-shadow: 0 0 10px var(--gold-light); }
+        
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- LOGIN REACTOR --- */
+        .login-reactor { position: relative; width: 150px; height: 150px; display: flex; align-items: center; justify-content: center; margin: 0 auto 30px auto; }
+        .reactor-ring { position: absolute; border-radius: 50%; border: 3px solid transparent; }
+        .ring-1 { width: 100%; height: 100%; border-top-color: var(--gold); border-bottom-color: var(--gold); animation: spin 3s linear infinite; }
+        .ring-2 { width: 75%; height: 75%; border-left-color: var(--primary); border-right-color: var(--primary); animation: spin-rev 2s linear infinite; }
+        @keyframes spin-rev { 0% { transform: rotate(0deg); } 100% { transform: rotate(-360deg); } }
+
+        .glow-warning {
+            background: rgba(255, 165, 0, 0.1); border: 1px solid orange; color: #d35400;
+            padding: 15px; border-radius: 12px; text-align: center; font-weight: 800;
+            text-transform: uppercase; margin-bottom: 20px;
+        }
+
+        #view-only-msg {
+            display: none; background: #ffebee; color: #b71c1c; border: 1px solid #b71c1c;
+            padding: 10px; border-radius: 8px; font-weight: bold; font-size: 14px; width: 100%; text-align: center; margin-bottom: 10px;
+        }
+
+        /* ================= PRINT REPORT CSS ================= */
+        .print-page {
+            background: white; color: black; display: none;
+            width: 210mm; min-height: 297mm; margin: 0 auto;
+            box-sizing: border-box; font-family: 'Inter', sans-serif;
+            padding-bottom: 40px;
+        }
+        
+        .hospital-header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+        .hospital-header h1 { font-size: 24px; font-weight: 800; margin: 0; color: #000; text-transform: uppercase; letter-spacing: 0.5px; }
+        .hospital-header h2 { font-size: 14px; font-weight: 600; margin: 5px 0; color: #444; }
+
+        .patient-card { border: 1px solid #aaa; border-radius: 6px; padding: 12px; background: #fff; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 30px; }
+        .print-row { display: flex; align-items: baseline; border-bottom: 1px dotted #ddd; padding-bottom: 3px; }
+        .print-row.full-width { grid-column: span 2; }
+        .print-row label { font-size: 11px; font-weight: 700; color: #444; width: 70px; text-transform: uppercase; }
+        .print-row span { font-size: 13px; font-weight: 600; color: #000; flex: 1; }
+
+        .section-card { margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; page-break-inside: avoid; }
+        .sec-head { 
+            padding: 6px 12px; font-size: 13px; font-weight: 700; text-transform: uppercase; 
+            -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .theme-purple .sec-head { background: var(--bg-purple); color: var(--text-purple); }
+        .theme-red .sec-head    { background: var(--bg-red);    color: var(--text-red); }
+        .theme-yellow .sec-head { background: var(--bg-yellow); color: var(--text-yellow); }
+        .theme-green .sec-head  { background: var(--bg-green);  color: var(--text-green); }
+        .theme-grey .sec-head   { background: var(--bg-grey);   color: var(--text-grey); }
+        .theme-blue .sec-head   { background: var(--bg-blue);   color: var(--text-blue); }
+
+        .print-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .print-table td { padding: 4px 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        .print-table td:first-child { font-weight: 600; color: #222; }
+        
+        .res-input, .res-select { width: 100%; text-align: center; border: none; outline: none; background: transparent; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 14px; color: #000; }
+        .res-input:disabled, .res-select:disabled { color: #555; background: #f0f0f0; cursor: not-allowed; }
+
+        /* Little Italic Bold Reference Ranges */
+        .ref-range { font-size: 11px; color: #333; text-align: right; padding-right: 5px; font-weight: 800; font-style: italic; }
+        .unit-label { font-size: 10px; color: #666; }
+        
+        .sub-head { background: #f8f9fa; color: #222; font-weight: 700; font-size: 11px; padding-left: 15px; text-transform: uppercase; letter-spacing: 0.5px; -webkit-print-color-adjust: exact; }
+        .low { color: #000 !important; font-weight: 900; text-decoration: underline; }
+        .high { color: #000 !important; font-weight: 900; text-decoration: underline; }
+
+        .action-bar { display: flex; gap:10px; padding:20px; background:var(--input-bg); border-top:1px solid #ccc; border-radius: 12px; margin-top: 20px; }
+
+        @media print {
+            @page { size: A4; margin: 10mm; }
+            body { background: white; padding: 0; display: block; }
+            .app-container, .btn, .action-bar, #view-intro-anim, #view-only-msg { display: none !important; }
+            .print-page { display: block !important; width: 100%; border: none; margin: 0; padding: 0; }
+            .sec-head, .sub-head { -webkit-print-color-adjust: exact; }
+            select { -webkit-appearance: none; -moz-appearance: none; text-indent: 1px; text-overflow: ''; border: none; }
+            input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="view-loader" class="hidden">
+        <div class="loader-spinner"></div>
+        <div id="sys-msg" class="sys-text">CHECKING CONNECTION...</div>
+        <div class="progress-bar"><div id="sys-progress" class="progress-fill"></div></div>
+    </div>
+
+    <div id="view-intro-anim" class="hidden">
+        <div class="cosmic-stars"></div>
+        <div class="cosmic-nebula"></div>
+        <div class="cinematic-welcome">
+            <span class="sub-welcome">WELCOME TO</span>
+            <span class="main-welcome">CENTRAL LABORATORY WASHIM</span>
+        </div>
+    </div>
+
+    <div class="app-container">
+        
+        <div id="view-login" class="card fade-in text-center" style="max-width: 400px; margin: 10vh auto;">
+            <div class="login-reactor">
+                <div class="reactor-ring ring-1"></div>
+                <div class="reactor-ring ring-2"></div>
+                <div style="font-size: 45px; z-index: 2;">🔬</div>
+            </div>
+            <h2>System Access</h2>
+            <select id="login-user" class="sleek-input text-center">
+                <option value="tech">LAB TECHNICIAN</option>
+                <option value="auth">AUTHORISED PERSON</option>
+            </select>
+            <input type="password" id="login-pass" class="sleek-input text-center" placeholder="ENTER PASSCODE" style="letter-spacing: 3px;">
+            <button class="btn btn-primary" onclick="login()">Initiate Access</button>
+        </div>
+
+        <div id="view-dashboard" class="card hidden fade-in">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2 style="margin:0">Dashboard</h2>
+                <small style="color:var(--text-muted); font-weight:bold;">Role: <span id="dash-role" style="color:var(--gold);"></span></small>
+            </div>
+            <div class="stat-grid">
+                <div class="stat-box"><span id="stat-online" class="stat-num">0</span><span class="stat-label">Online Entry Today</span></div>
+                <div class="stat-box"><span id="stat-offline" class="stat-num">0</span><span class="stat-label">Offline Entry Today</span></div>
+            </div>
+            <button class="btn btn-success" onclick="nav('view-menu')">Enter Main Menu</button>
+            <button class="btn btn-dark" onclick="fetchDashboardStats()">🔄 Refresh Stats</button>
+        </div>
+
+        <div id="view-menu" class="card hidden fade-in">
+            <h2 class="text-center mb-20" style="color: var(--gold); text-shadow: 0 2px 4px rgba(0,0,0,0.1);">Main Menu</h2>
+            <div class="menu-grid">
+                <div id="btn-dash" class="menu-item hidden" onclick="nav('view-dashboard')">
+                    <span class="menu-icon">📊</span><b>Dashboard</b>
+                </div>
+                <div class="menu-item" onclick="startNewPatient(false)">
+                    <span class="menu-icon">👤</span><b>Online Entry</b>
+                </div>
+                <div class="menu-item" onclick="nav('view-search')">
+                    <span class="menu-icon">🔍</span><b>Search</b>
+                </div>
+                <div class="menu-item" onclick="startNewPatient(true)">
+                    <span class="menu-icon">🖨️</span><b>Offline Entry</b>
+                </div>
+                <div class="menu-item" onclick="nav('view-info')">
+                    <span class="menu-icon">ℹ️</span><b>Info / Credits</b>
+                </div>
+                <div class="menu-item" style="grid-column: span 2;" onclick="location.reload()">
+                     <span class="menu-icon">🔒</span><b>Secure Logout</b>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-info" class="card hidden fade-in">
+            <h2 class="text-center">System Information</h2>
+            <div style="background: var(--input-bg); border-radius: 16px; padding: 25px; box-shadow: var(--input-shadow); margin-bottom: 20px;">
+                <p style="margin: 10px 0; font-size: 15px;"><strong>👨‍💻 Developer:</strong> Arbaz</p>
+                <p style="margin: 10px 0; font-size: 15px;"><strong>📱 Phone:</strong> 74997213**</p>
+                <p style="margin: 10px 0; font-size: 15px;"><strong>📧 E-mail:</strong> arbazjr707@Gmail.com</p>
+                <p style="margin: 10px 0; font-size: 15px;"><strong>🚀 Web Launch:</strong> 9 Feb 2026</p>
+                <p style="margin: 10px 0; font-size: 15px;"><strong>✅ Testing Done:</strong> 15 Feb 2026</p>
+                <p style="margin: 10px 0; font-size: 15px;"><strong>⚡ Next Upgrade:</strong> Soon after Succession.</p>
+                
+                <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 20px 0;">
+                
+                <h4 style="margin: 0 0 10px 0; color: var(--primary); text-transform: uppercase;">Credits:</h4>
+                <p style="margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.6; font-weight: 600;">
+                    Perplexity, Trebedit, Google Sheets, Data JSON JS CSS, #pantone Colour pallete, Staff & friends Guidance.
+                </p>
+            </div>
+            <button class="btn btn-dark" onclick="nav('view-menu')">⬅ Back to Menu</button>
+        </div>
+
+        <div id="view-search" class="card hidden fade-in">
+            <h2>Search Database</h2>
+            <div class="form-grid">
+                <div class="form-group"><label>OPD Number</label><input type="text" id="search-opd" class="sleek-input" placeholder="Enter OPD..."></div>
+                <div class="form-group"><label>Date</label><input type="date" id="search-date" class="sleek-input"></div>
+            </div>
+            <button class="btn btn-primary" onclick="executeSearch()">Find Patient</button>
+            <button class="btn btn-dark" onclick="nav('view-menu')">Back to Menu</button>
+            <div id="search-results" class="mt-20" style="max-height: 300px; overflow-y: auto;"></div>
+        </div>
+
+        <div id="view-entry" class="card hidden fade-in">
+            <div class="glow-warning">
+                ⚠️ Please make patient entry carefully
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center" class="mb-20">
+                <h2 style="margin:0;">Patient Details <span id="entry-mode-label" style="font-size: 12px; color: var(--gold);"></span></h2>
+                <button onclick="nav('view-menu')" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-weight:bold;">✖ MENU</button>
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group"><label>OPD No. <span style="color:red;">*</span></label><input type="text" id="in-opd" class="sleek-input" required></div>
+                <div class="form-group"><label>Date</label><input type="date" id="in-date" class="sleek-input"></div>
+            </div>
+            
+            <div class="form-group mt-10"><label>Full Name</label><input type="text" id="in-name" class="sleek-input"></div>
+            
+            <div class="form-grid mt-10" style="grid-template-columns: 1fr 1fr 1.5fr;">
+                <div class="form-group"><label>Age</label><input type="text" id="in-age" class="sleek-input"></div>
+                <div class="form-group"><label>Sex</label><select id="in-sex" class="sleek-input"><option>Male</option><option>Female</option></select></div>
+                <div class="form-group"><label>Mobile</label><input type="text" id="in-mobile" class="sleek-input"></div>
+            </div>
+
+            <div class="form-group mt-10"><label>Referred By</label>
+                <select id="in-ref" class="sleek-input">
+                    <option value="">-- Select Ward --</option>
+                    <option>GENERAL MEDICINE</option><option>CASUALTY</option><option>ICU</option><option>SURGERY</option>
+                    <option>DIALYSIS WARD</option><option>PNC WARD</option><option>MALE MEDICINE</option>
+                    <option>FEMALE MEDICINE</option><option>EYE WARD</option><option>PAEDIATRIC</option>
+                </select>
+            </div>
+            <div class="form-group mt-10"><label>Address</label><input type="text" id="in-add" class="sleek-input"></div>
+            
+            <button class="btn btn-primary" onclick="validateOPDAndNext()">NEXT: SELECT TESTS ➡</button>
+        </div>
+
+        <div id="view-tests" class="card hidden fade-in">
+             <h2>Select Tests</h2>
+             <div class="test-grid">
+                <div class="test-card-select selected" onclick="toggleCard(this)"><input type="checkbox" id="chk-haema" checked data-name="Haematology"><span style="font-size:24px;">🩸</span><b>Haematology</b><span class="status-badge">ACTIVE</span></div>
+                <div class="test-card-select selected" onclick="toggleCard(this)"><input type="checkbox" id="chk-blood" checked data-name="Blood Grp"><span style="font-size:24px;">🅾️</span><b>Blood Grp</b><span class="status-badge">ACTIVE</span></div>
+                <div class="test-card-select selected" onclick="toggleCard(this)"><input type="checkbox" id="chk-fever" checked data-name="Fever Profile"><span style="font-size:24px;">🌡️</span><b>Fever</b><span class="status-badge">ACTIVE</span></div>
+                <div class="test-card-select selected" onclick="toggleCard(this)"><input type="checkbox" id="chk-sugar" checked data-name="Sugar"><span style="font-size:24px;">🍬</span><b>Sugar</b><span class="status-badge">ACTIVE</span></div>
+                <div class="test-card-select selected" onclick="toggleCard(this)"><input type="checkbox" id="chk-lft" checked data-name="LFT"><span style="font-size:24px;">🧪</span><b>LFT</b><span class="status-badge">ACTIVE</span></div>
+                <div class="test-card-select selected" onclick="toggleCard(this)"><input type="checkbox" id="chk-kft" checked data-name="KFT"><span style="font-size:24px;">💧</span><b>KFT</b><span class="status-badge">ACTIVE</span></div>
+                <div class="test-card-select selected" onclick="toggleCard(this)"><input type="checkbox" id="chk-sero" checked data-name="Serology"><span style="font-size:24px;">🦠</span><b>Serology</b><span class="status-badge">ACTIVE</span></div>
+                <div class="test-card-select selected" onclick="toggleCard(this)"><input type="checkbox" id="chk-coag" checked data-name="Coagulation"><span style="font-size:24px;">⏱️</span><b>Coagulation</b><span class="status-badge">ACTIVE</span></div>
+                <div class="test-card-select selected" onclick="toggleCard(this)"><input type="checkbox" id="chk-urine" checked data-name="Urine"><span style="font-size:24px;">🚽</span><b>Urine</b><span class="status-badge">ACTIVE</span></div>
+                <div class="test-card-select selected" onclick="toggleCard(this)"><input type="checkbox" id="chk-coag2" checked data-name="Coagulation 2"><span style="font-size:24px;">🩸</span><b>Coag 2</b><span class="status-badge">ACTIVE</span></div>
+                <div class="test-card-select selected" onclick="toggleCard(this)"><input type="checkbox" id="chk-sickle" checked data-name="Sickle Cell"><span style="font-size:24px;">🔬</span><b>Sickle Cell</b><span class="status-badge">ACTIVE</span></div>
+             </div>
+             <button class="btn btn-success" onclick="generateReportView()">GENERATE REPORT ✈️</button>
+             <button class="btn btn-dark" onclick="nav('view-entry')">⬅ BACK</button>
+        </div>
+    </div>
+
+    <div id="print-view" class="print-page">
+        <div class="hospital-header">
+            <h1>District Civil Hospital Washim</h1>
+            <h2>PATHOLOGY LABORATORY</h2>
+            <div style="font-size:12px; color:#555">Near MSEB Office, Washim - 444505</div>
+        </div>
+
+        <div class="patient-card">
+            <div class="print-row"><label>Name:</label><span id="out-name"></span></div>
+            <div class="print-row"><label>Date:</label><span id="out-date"></span></div>
+            <div class="print-row"><label>Age/Sex:</label><span id="out-age-sex"></span></div>
+            <div class="print-row"><label>OPD:</label><span id="out-opd"></span></div>
+            <div class="print-row"><label>Ref:</label><span id="out-ref"></span></div>
+            <div class="print-row"><label>Mobile:</label><span id="out-mobile"></span></div>
+            <div class="print-row full-width"><label>Tests:</label><span id="out-tests"></span></div>
+        </div>
+
+        <div id="sec-haema" class="section-card theme-purple">
+            <div class="sec-head">Haematology</div>
+            <table class="print-table">
+                <tr><td width="35%">Haemoglobin (Hb)</td><td width="25%"><input type="text" id="val-hb" class="res-input" oninput="checkRange(this, 12, 17)"></td><td width="10%" class="unit-label">gm/dL</td><td class="ref-range">12 - 17</td></tr>
+                <tr><td>Total WBC</td><td><input type="text" id="val-wbc" class="res-input" oninput="checkRange(this, 4000, 11000)"></td><td class="unit-label">/cmm</td><td class="ref-range">4000 - 11000</td></tr>
+                <tr><td>Platelets</td><td><input type="text" id="val-plt" class="res-input" oninput="checkRange(this, 100000, 450000)"></td><td class="unit-label">/cmm</td><td class="ref-range">1.5 - 4.5 Lac</td></tr>
+                
+                <tr><td colspan="4" class="sub-head">Differential Leukocyte Count</td></tr>
+                <tr><td>Neutrophils</td><td><input type="text" id="val-neu" class="res-input" oninput="checkRange(this, 40, 75)"></td><td class="unit-label">%</td><td class="ref-range">40 - 75</td></tr>
+                <tr><td>Lymphocytes</td><td><input type="text" id="val-lym" class="res-input" oninput="checkRange(this, 20, 45)"></td><td class="unit-label">%</td><td class="ref-range">20 - 45</td></tr>
+                <tr><td>Eosinophils</td><td><input type="text" id="val-eos" class="res-input" oninput="checkRange(this, 1, 6)"></td><td class="unit-label">%</td><td class="ref-range">01 - 06</td></tr>
+                <tr><td>Monocytes</td><td><input type="text" id="val-mon" class="res-input" oninput="checkRange(this, 2, 10)"></td><td class="unit-label">%</td><td class="ref-range">02 - 10</td></tr>
+                <tr><td>Basophils</td><td><input type="text" id="val-bas" class="res-input" oninput="checkRange(this, 0, 1)"></td><td class="unit-label">%</td><td class="ref-range">00 - 01</td></tr>
+            </table>
+        </div>
+
+        <div id="sec-blood" class="section-card theme-red">
+            <div class="sec-head">Blood Group</div>
+            <table class="print-table"><tr><td width="35%">Blood Group</td><td width="65%"><select id="val-bg" class="res-select"><option></option><option>A Positive</option><option>B Positive</option><option>O Positive</option><option>AB Positive</option><option>A Negative</option><option>B Negative</option><option>O Negative</option><option>AB Negative</option></select></td></tr></table>
+        </div>
+
+        <div id="sec-fever" class="section-card theme-yellow">
+            <div class="sec-head">Fever Profile</div>
+            <table class="print-table">
+                <tr><td width="35%">Dengue NS1</td><td width="65%"><select id="val-ns1" class="res-select"><option>Negative</option><option style="color:red">Positive</option></select></td></tr>
+                <tr><td>Malaria (MP)</td><td><select id="val-mp" class="res-select"><option>Not Seen</option><option style="color:red">Seen</option></select></td></tr>
+                <tr><td>Widal</td><td><select id="val-widal" class="res-select"><option>Non-Reactive</option><option style="color:red">Reactive</option></select></td></tr>
+            </table>
+        </div>
+
+        <div id="sec-sugar" class="section-card theme-grey">
+            <div class="sec-head">Blood Sugar</div>
+            <table class="print-table">
+                <tr><td width="35%">Random (RBS)</td><td width="25%"><input type="text" id="val-rbs" class="res-input" oninput="checkRange(this, 70, 140)"></td><td width="10%" class="unit-label">mg/dL</td><td class="ref-range">70 - 140</td></tr>
+                <tr><td>Fasting (FBS)</td><td><input type="text" id="val-fbs" class="res-input" oninput="checkRange(this, 70, 110)"></td><td class="unit-label">mg/dL</td><td class="ref-range">70 - 110</td></tr>
+            </table>
+        </div>
+
+        <div id="sec-lft" class="section-card theme-yellow">
+            <div class="sec-head">Liver Function (LFT)</div>
+            <table class="print-table">
+                 <tr><td width="35%">Bilirubin Total</td><td width="25%"><input type="text" id="val-bili" class="res-input" oninput="checkRange(this, 0.1, 1.2)"></td><td width="10%" class="unit-label">mg/dL</td><td class="ref-range">0.1 - 1.2</td></tr>
+                 <tr><td>SGOT</td><td><input type="text" id="val-sgot" class="res-input" oninput="checkRange(this, 0, 40)"></td><td class="unit-label">U/L</td><td class="ref-range">0 - 40</td></tr>
+                 <tr><td>SGPT</td><td><input type="text" id="val-sgpt" class="res-input" oninput="checkRange(this, 0, 40)"></td><td class="unit-label">U/L</td><td class="ref-range">0 - 40</td></tr>
+            </table>
+        </div>
+
+        <div id="sec-kft" class="section-card theme-yellow">
+            <div class="sec-head">Kidney Function (KFT)</div>
+            <table class="print-table">
+                 <tr><td width="35%">Blood Urea</td><td width="25%"><input type="text" id="val-urea" class="res-input" oninput="checkRange(this, 15, 45)"></td><td width="10%" class="unit-label">mg/dL</td><td class="ref-range">15 - 45</td></tr>
+                 <tr><td>Creatinine</td><td><input type="text" id="val-creat" class="res-input" oninput="checkRange(this, 0.6, 1.2)"></td><td class="unit-label">mg/dL</td><td class="ref-range">0.6 - 1.2</td></tr>
+            </table>
+        </div>
+
+        <div id="sec-sero" class="section-card theme-yellow">
+            <div class="sec-head">Serology</div>
+            <table class="print-table">
+                 <tr><td width="35%">HBsAg</td><td width="35%"><select id="val-hbsag" class="res-select"><option>Non-Reactive</option><option style="color:red">Reactive</option></select></td><td class="unit-label">Rapid</td></tr>
+                 <tr><td>HCV</td><td><select id="val-hcv" class="res-select"><option>Non-Reactive</option><option style="color:red">Reactive</option></select></td><td class="unit-label">Rapid</td></tr>
+                 <tr><td>VDRL</td><td><select id="val-vdrl" class="res-select"><option>Non-Reactive</option><option style="color:red">Reactive</option></select></td><td class="unit-label">Slide</td></tr>
+            </table>
+        </div>
+
+        <div id="sec-coag" class="section-card theme-purple">
+            <div class="sec-head">Coagulation</div>
+            <table class="print-table">
+                 <tr><td width="35%">PT (Test)</td><td width="25%"><input type="text" id="val-pt" class="res-input"></td><td width="10%" class="unit-label">Sec</td><td class="ref-range">11 - 13.5</td></tr>
+                 <tr><td>INR</td><td><input type="text" id="val-inr" class="res-input"></td><td class="unit-label"></td><td class="ref-range">0.8 - 1.2</td></tr>
+            </table>
+        </div>
+
+        <div id="sec-urine" class="section-card theme-green">
+            <div class="sec-head">Urine Examination</div>
+            <table class="print-table">
+                 <tr><td width="25%">Albumin</td><td width="25%"><input type="text" id="val-alb" class="res-input"></td><td width="25%">Sugar</td><td width="25%"><input type="text" id="val-usugar" class="res-input"></td></tr>
+                 <tr><td>Pus Cells</td><td><input type="text" id="val-pus" class="res-input"></td><td>RBCs</td><td><input type="text" id="val-urbc" class="res-input"></td></tr>
+                 <tr><td>Epithelial</td><td><input type="text" id="val-epith" class="res-input"></td><td>Crystals</td><td><input type="text" id="val-crys" class="res-input"></td></tr>
+            </table>
+        </div>
+
+        <div id="sec-coag2" class="section-card theme-blue">
+            <div class="sec-head">Coagulation 2</div>
+            <table class="print-table">
+                <tr><td width="35%">Bleeding Time (BT)</td><td width="25%"><input type="text" id="val-bt" class="res-input"></td><td width="10%" class="unit-label">mins</td><td class="ref-range">1 - 9</td></tr>
+                <tr><td>Clotting Time (CT)</td><td><input type="text" id="val-ct" class="res-input"></td><td class="unit-label">mins</td><td class="ref-range">8 - 15</td></tr>
+            </table>
+        </div>
+
+        <div id="sec-sickle" class="section-card theme-grey">
+            <div class="sec-head">Sickle Cell & Solubility</div>
+            <table class="print-table">
+                <tr><td width="35%">Sickling Test</td><td width="25%"><input type="text" id="val-sickle" class="res-input"></td><td width="10%" class="unit-label"></td><td class="ref-range">Negative</td></tr>
+                <tr><td>Solubility Test</td><td><select id="val-solubility" class="res-select"><option>Negative</option><option style="color:red">Positive</option></select></td><td class="unit-label"></td><td class="ref-range">Negative</td></tr>
+            </table>
+        </div>
+
+        <div style="margin-top: 40px; display: flex; justify-content: space-between;">
+            <div style="text-align:center; width:200px; border-top:1px solid #333; padding-top: 5px;">Lab Technician</div>
+            <div style="text-align:center; width:200px; border-top:1px solid #333; padding-top: 5px;">Medical Officer</div>
+        </div>
+
+        <span id="view-only-msg">⚠️ READ ONLY MODE (Database View)</span>
+        <div class="action-bar" id="print-action-bar">
+            <button class="btn btn-success" id="btn-cloud-save" onclick="saveToCloud()" style="margin:0;">☁️ Save to Cloud</button>
+            <button class="btn btn-primary" onclick="window.print()" style="margin:0;">🖨️ Print</button>
+            <button class="btn btn-dark" id="btn-edit-mode" onclick="nav('view-entry')" style="margin:0;">✏️ Edit</button>
+            <button class="btn btn-dark" onclick="nav('view-menu')" style="margin:0;">🏠 Menu</button>
+        </div>
+    </div>
+
+    <script>
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXkwrXHwGQ7LmoF3IdteVyVerG3Yn8akTNegjKskiAHDUdCP89gqKMyL6maWK2EIkA/exec";
+        let currentUserRole = null, isSearchMode = false, isOfflineMode = false;
+
+        function login() {
+            const user = document.getElementById('login-user').value;
+            const pass = document.getElementById('login-pass').value;
+            if(user === "tech" && pass === "STAFF") { currentUserRole = 'staff'; playCheckingAnim('view-dashboard'); } 
+            else if(user === "auth" && (pass === "ACSWASHIM" || pass === "ARBAZ11")) { currentUserRole = 'admin'; playCheckingAnim('view-dashboard'); } 
+            else { alert("⛔ ACCESS DENIED: Invalid Passcode"); }
+        }
+
+        function playCheckingAnim(targetId) {
+            nav(''); // hide all
+            const loader = document.getElementById('view-loader');
+            loader.classList.remove('hidden');
+            const msg = document.getElementById('sys-msg');
+            const prog = document.getElementById('sys-progress');
+            
+            setTimeout(() => { msg.innerText = "AUTHENTICATING..."; prog.style.width = "40%"; }, 800);
+            setTimeout(() => { msg.innerText = "ACCESS GRANTED"; prog.style.width = "100%"; msg.style.color = "var(--gold)"; }, 1800);
+
+            setTimeout(() => {
+                loader.classList.add('hidden');
+                prog.style.width = "0%";
+                msg.innerText = "CHECKING CONNECTION...";
+                msg.style.color = "var(--text-main)";
+                playWelcomeAnim(targetId);
+            }, 2200);
+        }
+
+        // --- COSMIC ANIMATION LOGIC ---
+        function playWelcomeAnim(targetId) {
+            const intro = document.getElementById('view-intro-anim');
+            intro.classList.remove('hidden');
+            
+            if(targetId === 'view-dashboard') fetchDashboardStats();
+            
+            // Hide the space animation after 4.5 seconds
+            setTimeout(() => {
+                intro.classList.add('fade-out');
+                setTimeout(() => {
+                    intro.classList.add('hidden');
+                    intro.classList.remove('fade-out');
+                    nav(targetId);
+                }, 500);
+            }, 4500); 
+        }
+
+        function nav(id) {
+            document.querySelectorAll('.card').forEach(el => el.classList.add('hidden'));
+            document.getElementById('view-loader').classList.add('hidden');
+            document.getElementById('print-view').style.display = 'none';
+            document.querySelector('.app-container').style.display = 'block';
+            
+            if(id === 'view-menu') { document.getElementById('btn-dash').classList.remove('hidden'); }
+
+            if(id) {
+                const target = document.getElementById(id);
+                target.classList.remove('hidden');
+                target.classList.add('fade-in');
+            }
+        }
+
+        function fetchDashboardStats() {
+            document.getElementById('dash-role').innerText = (currentUserRole === 'staff') ? "LAB TECHNICIAN" : "AUTHORISED PERSON";
+            document.getElementById('stat-online').innerText = "...";
+            document.getElementById('stat-offline').innerText = "...";
+
+            fetch(`${GOOGLE_SCRIPT_URL}?type=stats`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('stat-online').innerText = data.online || data.today || 0;
+                document.getElementById('stat-offline').innerText = data.offline || data.month || 0;
+            })
+            .catch(e => {
+                document.getElementById('stat-online').innerText = "ERR";
+                document.getElementById('stat-offline').innerText = "ERR";
+            });
+        }
+
+        function startNewPatient(isOffline) {
+            isSearchMode = false; isOfflineMode = isOffline;
+            document.getElementById('entry-mode-label').innerText = isOffline ? "(OFFLINE MODE - NO SAVE)" : "(ONLINE MODE)";
+            
+            document.querySelectorAll('input').forEach(i => i.value = '');
+            document.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+            document.getElementById('in-date').valueAsDate = new Date();
+            
+            document.querySelectorAll('.test-card-select').forEach(c => {
+                 c.classList.add('selected');
+                 c.querySelector('input').checked = true;
+                 c.querySelector('.status-badge').textContent = "ACTIVE";
+            });
+            nav('view-entry');
+        }
+
+        function validateOPDAndNext() {
+            const opdInput = document.getElementById('in-opd');
+            if(opdInput.value.trim() === '') {
+                alert("OPD Number is compulsory!");
+                opdInput.focus();
+                return;
+            }
+            nav('view-tests');
+        }
+
+        function toggleCard(el) {
+            el.classList.toggle('selected');
+            const chk = el.querySelector('input');
+            chk.checked = !chk.checked;
+            el.querySelector('.status-badge').textContent = chk.checked ? "ACTIVE" : "OFF";
+        }
+
+        function generateReportView() {
+            // MAP DATA
+            document.getElementById('out-name').textContent = document.getElementById('in-name').value;
+            document.getElementById('out-date').textContent = document.getElementById('in-date').value;
+            document.getElementById('out-age-sex').textContent = document.getElementById('in-age').value + " / " + document.getElementById('in-sex').value;
+            document.getElementById('out-mobile').textContent = document.getElementById('in-mobile').value;
+            document.getElementById('out-ref').textContent = document.getElementById('in-ref').value;
+            document.getElementById('out-opd').textContent = document.getElementById('in-opd').value;
+
+            // Generate Test List String
+            let selectedTests = [];
+            const checkboxes = document.querySelectorAll('.test-card-select input[type="checkbox"]');
+            checkboxes.forEach(cb => { if(cb.checked) selectedTests.push(cb.getAttribute('data-name')); });
+            document.getElementById('out-tests').innerText = selectedTests.join(', ');
+
+            // Show/Hide Sections (Updated to separate Coag 2 and Sickle)
+            document.getElementById('sec-haema').style.display = document.getElementById('chk-haema').checked ? 'block' : 'none';
+            document.getElementById('sec-blood').style.display = document.getElementById('chk-blood').checked ? 'block' : 'none';
+            document.getElementById('sec-fever').style.display = document.getElementById('chk-fever').checked ? 'block' : 'none';
+            document.getElementById('sec-sugar').style.display = document.getElementById('chk-sugar').checked ? 'block' : 'none';
+            document.getElementById('sec-lft').style.display = document.getElementById('chk-lft').checked ? 'block' : 'none';
+            document.getElementById('sec-kft').style.display = document.getElementById('chk-kft').checked ? 'block' : 'none';
+            document.getElementById('sec-sero').style.display = document.getElementById('chk-sero').checked ? 'block' : 'none';
+            document.getElementById('sec-coag').style.display = document.getElementById('chk-coag').checked ? 'block' : 'none';
+            document.getElementById('sec-urine').style.display = document.getElementById('chk-urine').checked ? 'block' : 'none';
+            document.getElementById('sec-coag2').style.display = document.getElementById('chk-coag2').checked ? 'block' : 'none';
+            document.getElementById('sec-sickle').style.display = document.getElementById('chk-sickle').checked ? 'block' : 'none';
+
+            generateReportViewLogic();
+        }
+
+        function generateReportViewLogic() {
+            document.querySelector('.app-container').style.display = 'none'; 
+            document.getElementById('print-view').style.display = 'block'; 
+
+            const isRestricted = (currentUserRole === 'staff' && isSearchMode);
+            const reportInputs = document.querySelectorAll('.print-page input, .print-page select');
+            reportInputs.forEach(el => el.disabled = isRestricted);
+
+            if (isRestricted) {
+                document.getElementById('btn-cloud-save').style.display = 'none';
+                document.getElementById('btn-edit-mode').style.display = 'none';
+                document.getElementById('view-only-msg').style.display = 'inline-block';
+            } else {
+                document.getElementById('btn-cloud-save').style.display = isOfflineMode ? 'none' : 'inline-block';
+                document.getElementById('btn-edit-mode').style.display = 'inline-block';
+                document.getElementById('view-only-msg').style.display = 'none';
+            }
+        }
+
+        function checkRange(input, min, max) {
+            input.classList.remove('low', 'high');
+            const val = parseFloat(input.value);
+            if(val < min) input.classList.add('low');
+            if(val > max) input.classList.add('high');
+        }
+
+        function executeSearch() {
+            const opd = document.getElementById('search-opd').value;
+            const date = document.getElementById('search-date').value;
+            const resDiv = document.getElementById('search-results');
+            resDiv.innerHTML = "<div class='text-center mt-10'>Searching...</div>";
+
+            fetch(`${GOOGLE_SCRIPT_URL}?opd=${opd}&date=${date}`)
+            .then(res => res.json())
+            .then(data => {
+                resDiv.innerHTML = "";
+                if(data.length === 0) { resDiv.innerHTML = "<div class='text-center'>No records found.</div>"; return; }
+                
+                data.forEach(p => {
+                    const div = document.createElement('div');
+                    div.className = 'search-item';
+                    div.innerHTML = `<div><b>${p.name}</b><br><small>${p.opd}</small></div><div>📅 ${p.date.substring(0,10)}</div>`;
+                    div.onclick = () => loadPatient(p.details);
+                    resDiv.appendChild(div);
+                });
+            })
+            .catch(() => { resDiv.innerHTML = "<div class='text-center' style='color:red;'>Error connecting to cloud.</div>"; });
+        }
+
+        function loadPatient(json) {
+            isSearchMode = true; isOfflineMode = false;
+            const d = JSON.parse(json);
+            
+            document.getElementById('in-name').value = d.name || "";
+            document.getElementById('in-age').value = d.age || "";
+            document.getElementById('in-sex').value = d.sex || "Male";
+            document.getElementById('in-date').value = d.date || "";
+            document.getElementById('in-mobile').value = d.mobile || "";
+            document.getElementById('in-ref').value = d.ref || "";
+            document.getElementById('in-opd').value = d.opd || "";
+            document.getElementById('in-add').value = d.address || "";
+            
+            if(d.hb) document.getElementById('val-hb').value = d.hb;
+            if(d.wbc) document.getElementById('val-wbc').value = d.wbc;
+            if(d.plt) document.getElementById('val-plt').value = d.plt;
+            if(d.neu) document.getElementById('val-neu').value = d.neu;
+            if(d.lym) document.getElementById('val-lym').value = d.lym;
+            if(d.eos) document.getElementById('val-eos').value = d.eos;
+            if(d.mon) document.getElementById('val-mon').value = d.mon;
+            if(d.bas) document.getElementById('val-bas').value = d.bas;
+            if(d.bg) document.getElementById('val-bg').value = d.bg;
+            if(d.rbs) document.getElementById('val-rbs').value = d.rbs;
+            if(d.fbs) document.getElementById('val-fbs').value = d.fbs;
+            if(d.bili) document.getElementById('val-bili').value = d.bili;
+            if(d.sgot) document.getElementById('val-sgot').value = d.sgot;
+            if(d.sgpt) document.getElementById('val-sgpt').value = d.sgpt;
+            if(d.urea) document.getElementById('val-urea').value = d.urea;
+            if(d.creat) document.getElementById('val-creat').value = d.creat;
+            if(d.ns1) document.getElementById('val-ns1').value = d.ns1;
+            if(d.mp) document.getElementById('val-mp').value = d.mp;
+            if(d.widal) document.getElementById('val-widal').value = d.widal;
+            if(d.hbsag) document.getElementById('val-hbsag').value = d.hbsag;
+            if(d.hcv) document.getElementById('val-hcv').value = d.hcv;
+            if(d.vdrl) document.getElementById('val-vdrl').value = d.vdrl;
+            if(d.pt) document.getElementById('val-pt').value = d.pt;
+            if(d.inr) document.getElementById('val-inr').value = d.inr;
+            if(d.alb) document.getElementById('val-alb').value = d.alb;
+            if(d.usugar) document.getElementById('val-usugar').value = d.usugar;
+            if(d.pus) document.getElementById('val-pus').value = d.pus;
+            if(d.urbc) document.getElementById('val-urbc').value = d.urbc;
+            if(d.epith) document.getElementById('val-epith').value = d.epith;
+            if(d.bt) document.getElementById('val-bt').value = d.bt;
+            if(d.ct) document.getElementById('val-ct').value = d.ct;
+            if(d.sickle) document.getElementById('val-sickle').value = d.sickle;
+            if(d.solubility) document.getElementById('val-solubility').value = d.solubility;
+
+            generateReportView();
+        }
+
+        function saveToCloud() {
+            const btn = document.getElementById('btn-cloud-save');
+            btn.innerHTML = "⏳ SAVING...";
+
+            const data = {
+                name: document.getElementById('in-name').value,
+                age: document.getElementById('in-age').value,
+                sex: document.getElementById('in-sex').value,
+                date: document.getElementById('in-date').value,
+                mobile: document.getElementById('in-mobile').value,
+                ref: document.getElementById('in-ref').value,
+                opd: document.getElementById('in-opd').value,
+                address: document.getElementById('in-add').value,
+                hb: document.getElementById('val-hb').value,
+                wbc: document.getElementById('val-wbc').value,
+                plt: document.getElementById('val-plt').value,
+                neu: document.getElementById('val-neu').value,
+                lym: document.getElementById('val-lym').value,
+                eos: document.getElementById('val-eos').value,
+                mon: document.getElementById('val-mon').value,
+                bas: document.getElementById('val-bas').value,
+                bg: document.getElementById('val-bg').value,
+                rbs: document.getElementById('val-rbs').value,
+                fbs: document.getElementById('val-fbs').value,
+                bili: document.getElementById('val-bili').value,
+                sgot: document.getElementById('val-sgot').value,
+                sgpt: document.getElementById('val-sgpt').value,
+                urea: document.getElementById('val-urea').value,
+                creat: document.getElementById('val-creat').value,
+                ns1: document.getElementById('val-ns1').value,
+                mp: document.getElementById('val-mp').value,
+                widal: document.getElementById('val-widal').value,
+                hbsag: document.getElementById('val-hbsag').value,
+                hcv: document.getElementById('val-hcv').value,
+                vdrl: document.getElementById('val-vdrl').value,
+                pt: document.getElementById('val-pt').value,
+                inr: document.getElementById('val-inr').value,
+                alb: document.getElementById('val-alb').value,
+                usugar: document.getElementById('val-usugar').value,
+                pus: document.getElementById('val-pus').value,
+                urbc: document.getElementById('val-urbc').value,
+                epith: document.getElementById('val-epith').value,
+                bt: document.getElementById('val-bt').value,
+                ct: document.getElementById('val-ct').value,
+                sickle: document.getElementById('val-sickle').value,
+                solubility: document.getElementById('val-solubility').value
+            };
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).then(() => {
+                btn.innerHTML = "✅ SAVED";
+                alert("Saved to Google Sheet!");
+                setTimeout(() => btn.innerHTML = "☁️ Save to Cloud", 2000);
+            }).catch(err => {
+                btn.innerHTML = "❌ ERROR";
+                alert("Save Failed");
+            });
+        }
+
+        // Enter key navigation wrapper
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); 
+                const active = document.activeElement;
+                if (active.id === 'login-pass') { login(); return; }
+                if (active.id === 'search-opd' || active.id === 'search-date') { executeSearch(); return; }
+                const inputs = Array.from(document.querySelectorAll('input:not([type="hidden"]):not([disabled]), select:not([disabled])'));
+                const visibleInputs = inputs.filter(el => el.offsetParent !== null);
+                const index = visibleInputs.indexOf(active);
+                if (index > -1 && index < visibleInputs.length - 1) {
+                    const next = visibleInputs[index + 1];
+                    next.focus();
+                    if (next.tagName === 'INPUT' && (next.type === 'text' || next.type === 'number')) {
+                        next.select();
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
